@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUMU的本命花语测试 - 深度版</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        /* --- 🌸 全局视觉系统：莫奈晨雾系 --- */
+        :root {
+            --primary: #d291bc; /* 莫奈紫粉 */
+            --primary-dark: #a66c91;
+            --accent: #95e1d3; /* 晨雾绿 */
+            --text-main: #5d4037; /* 深褐 */
+            --text-light: #8d6e63; /* 浅褐 */
+            --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            /* 高级磨砂玻璃参数 */
+            --glass-bg: rgba(255, 255, 255, 0.82);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.9);
+            --shadow: 0 15px 35px rgba(210, 145, 188, 0.15);
+            --font-stack: "Noto Serif SC", "Songti SC", serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-stack);
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- 🌷 背景花朵网格 (绝对均匀分布) --- */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            /* PC端：6列 x 5行 = 30个格子，完美覆盖 */
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            z-index: 0;
+            pointer-events: none; /* 鼠标穿透 */
+            opacity: 0.4; /* 淡淡的纹理感 */
+        }
+
+        .bg-flower {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.8rem;
+            filter: grayscale(15%) sepia(10%);
+            transition: transform 3s ease-in-out;
+            cursor: default;
+        }
+        
+        /* 背景呼吸浮动动画 */
+        .bg-flower:nth-child(odd) { animation: float 7s ease-in-out infinite; }
+        .bg-flower:nth-child(even) { animation: float 8s ease-in-out infinite reverse; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        /* --- 🪷 主容器 --- */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 92%;
+            max-width: 750px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px;
+            border: var(--glass-border);
+            box-shadow: var(--shadow);
+            padding: 45px;
+            text-align: center;
+            transition: opacity 0.4s ease;
+            margin: 30px 0;
+        }
+
+        .hidden { display: none !important; }
+
+        /* 标题排版 */
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #d291bc, #e17055);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: var(--primary);
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        h2 { font-size: 1.4rem; font-weight: normal; color: var(--text-main); margin-bottom: 25px; line-height: 1.4; }
+        
+        p { line-height: 1.9; color: var(--text-light); margin-bottom: 20px; font-size: 1.05rem; }
+
+        /* 按钮交互 */
+        .btn {
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 16px 45px;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 20px rgba(253, 160, 133, 0.35);
+            letter-spacing: 1px;
+            margin-top: 25px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(253, 160, 133, 0.5); }
+        .btn:active { transform: translateY(1px); }
+        .btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* 选项卡片 */
+        .option-btn {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid white;
+            border-radius: 16px;
+            padding: 18px 25px;
+            margin-bottom: 14px;
+            width: 100%;
+            text-align: left;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            font-family: "Lato", sans-serif; /* 选项稍微现代一点 */
+        }
+
+        .option-btn:hover {
+            background: #fff;
+            transform: translateX(6px);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(210, 145, 188, 0.15);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(to right, rgba(210, 145, 188, 0.1), rgba(255,255,255,0.8));
+            color: var(--primary-dark);
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* 进度指示 */
+        #progress-text {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        /* 底部版权 */
+        .footer {
+            margin-top: 50px;
+            font-size: 0.85rem;
+            color: #b0bec5;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 20px;
+        }
+        .warning { color: #e57373; font-weight: 600; display: block; margin-top: 6px; }
+
+        /* --- 结果页特有样式 --- */
+        #result-emoji {
+            font-size: 7.5rem;
+            margin: 10px 0 25px 0;
+            /* 绽放动画 */
+            animation: bloom 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            filter: drop-shadow(0 10px 20px rgba(210, 145, 188, 0.2));
+        }
+        
+        @keyframes bloom {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.65);
+            border-radius: 18px;
+            padding: 25px 30px;
+            margin-bottom: 22px;
+            text-align: left;
+            border: 1px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+
+        .result-card h3 {
+            color: var(--primary-dark);
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 1.15rem;
+        }
+        
+        .result-card p {
+            margin-bottom: 0;
+            text-align: justify;
+            font-size: 1rem;
+        }
+
+        #result-name { font-size: 2.4rem; color: var(--text-main); margin-bottom: 10px; font-weight: 700; }
+        #result-keywords { font-size: 1.1rem; color: var(--primary); margin-bottom: 30px; letter-spacing: 1px; }
+
+        /* --- 移动端适配 --- */
+        @media (max-width: 600px) {
+            .bg-grid {
+                grid-template-columns: repeat(5, 1fr); /* 手机端5列 */
+                grid-template-rows: repeat(6, 1fr);    /* 手机端6行 */
+            }
+            .bg-flower { font-size: 2.2rem; }
+            .container { padding: 30px 20px; width: 95%; margin: 15px 0; }
+            h1 { font-size: 1.8rem; }
+            #result-emoji { font-size: 6rem; }
+            .btn { width: 100%; padding: 14px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-grid" id="bg-grid"></div>
+
+<div class="container">
+    
+    <div id="start-screen">
+        <h1>🌸 MUMU的本命花语测试</h1>
+        <p class="intro-text">世间花卉千千万，唯有一朵像极了你的灵魂。<br>通过60道深度潜意识探寻，<br>在30种珍稀花语中，找到属于你的那一抹芬芳。</p>
+        <div style="margin: 40px 0;">
+            <span style="font-size: 3.5rem;">💐</span>
+        </div>
+        <button class="btn" onclick="startTest()">开始寻花之旅</button>
+        
+        <div class="footer">
+            DESIGNED BY MUMU
+            <span class="warning">© 禁止抄袭 · 侵权必究</span>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div id="progress-text">Q1 / 60</div>
+        <h2 id="question-text">题目加载中...</h2>
+        <div id="options-container"></div>
+        <div style="height: 20px;"></div> </div>
+
+    <div id="result-screen" class="hidden">
+        <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 5px;">你的灵魂本命花是</p>
+        <div id="result-emoji"></div>
+        <h1 id="result-name"></h1>
+        <p id="result-keywords"></p>
+        
+        <div class="result-card">
+            <h3>📖 花语解码</h3>
+            <p id="result-desc"></p>
+        </div>
+
+        <div class="result-card">
+            <h3>✨ 灵魂深度剖析</h3>
+            <p id="result-analysis"></p>
+        </div>
+
+        <div class="result-card">
+            <h3>🌱 养护与成长建议</h3>
+            <p id="result-advice"></p>
+        </div>
+
+        <button class="btn" onclick="location.reload()" style="background: transparent; color: var(--text-light); border: 1px solid var(--text-light); box-shadow: none; margin-top: 10px;">再测一次</button>
+        
+        <div class="footer">
+            DESIGNED BY MUMU
+            <span class="warning">© 禁止抄袭 · 侵权必究</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 🌸 核心数据：30种花卉完整数据库 (文案已大幅润色与扩充)
+    // 逻辑键值：EI(光照) + TF(介质) + Style(风格) + Speed(花期)
+    // ==========================================
+    const flowerData = {
+        // --- E (喜阳) + T (理性) ---
+        "E_T_Royal_Fast": { 
+            name: "🌻 向日葵 (Sunflower)", emoji: "🌻", keywords: "信念 · 光辉 · 忠诚 · 领袖", 
+            desc: "入目无他人，四下皆是你。你就像太阳一样，拥有照亮他人的天赋。", 
+            analysis: "你拥有令人羡慕的能量场，性格明快而坦率，从不屑于隐藏自己的野心和热情。你就像向日葵一样，天生对‘光’（目标、希望、成功）有着敏锐的感知力。在团队中，你往往是那个指引方向的灯塔，不仅自己行动力爆表，还能用源源不断的正能量感染并带动身边的人。你不喜欢拐弯抹角，认为直接高效才是解决问题的王道。", 
+            advice: "虽然你习惯了做大家的‘小太阳’，但请允许自己偶尔也有‘日落’的时刻。不必强迫自己24小时都正能量满满，适当地展示你的疲惫和脆弱，不仅不会削弱你的威信，反而会让你的形象更加真实、立体且可爱。记得给自己的根部浇浇水，而不只是仰望天空。" 
+        },
+        "E_T_Royal_Slow": { 
+            name: "🌹 红玫瑰 (Red Rose)", emoji: "🌹", keywords: "热情 · 勇敢 · 荆棘 · 真我", 
+            desc: "我爱你，但我更爱那个爱你的自己。绽放是你的本能，无关他人。", 
+            analysis: "你生来就是为了绽放的。你拥有极其强烈的个性和不容忽视的气场，像红玫瑰一样，既有令人沉醉的娇艳，又有保护自己的锋利荆棘。你对自己有着极高的标准，对生活品质绝不将就。在感情和事业中，你都敢爱敢恨，理性让你懂得如何规避伤害，而感性则让你散发着致命的魅力。", 
+            advice: "你的刺是你最好的保护色，但要注意别让它无意中刺伤了那些真正想拥抱你、呵护你的人。在亲密关系中，适度收敛你的锋芒，展现你花瓣般柔软的内心，你会发现，并不需要时刻保持战斗状态，你依然会被深爱。" 
+        },
+        "E_T_Wild_Fast": { 
+            name: "🌵 仙人掌花 (Cactus Flower)", emoji: "🌵", keywords: "坚强 · 奇迹 · 外刚内柔", 
+            desc: "孤独是强者的必修课，而在荒芜中开出的花最动人。", 
+            analysis: "你拥有令人惊叹的生存智慧和适应能力。外表看起来坚硬、独立，甚至有点冷酷，但这只是你在这个复杂世界生存的伪装。你的内心其实藏着一团火和一汪水。你不轻易展示自己的美好，但一旦时机成熟，你绽放出的光彩会惊艳所有人。你信奉实用主义，讨厌虚伪的花架子。", 
+            advice: "你已经证明了自己足够强大，可以独自抵挡风沙。但请记得，偶尔卸下沉重的铠甲透透气也是可以的。试着在一个安全、温暖的环境里，向信任的人展示你柔软多汁的内心，你会发现，依赖别人并不代表软弱。" 
+        },
+        "E_T_Wild_Slow": { 
+            name: "🦜 天堂鸟 (Bird of Paradise)", emoji: "🦜", keywords: "自由 · 潇洒 · 独特 · 远方", 
+            desc: "我的心属于更广阔的天空，没人能将我囚禁。", 
+            analysis: "你独特、张扬，拥有一种异域风情般的迷人魅力。你的思维极具跳跃性，天马行空，最讨厌被传统的规则和世俗的眼光所束缚。你就像一只随时准备起飞的鸟，永远向往着未知的远方。在人群中，你总是那个最特别的存在，从不随波逐流，活得潇洒恣意。", 
+            advice: "特立独行虽然很酷，但在这个重力的世界里，偶尔寻找一个落脚的枝头也很重要。试着寻找那些能读懂你独特之处、愿意陪你一起疯的灵魂伙伴，有了归属感，你的飞翔会更加安心和持久。" 
+        },
+        "E_T_Zen_Fast": { 
+            name: "🎋 铁线莲 (Clematis)", emoji: "🎋", keywords: "高洁 · 智慧 · 攀登 · 韧性", 
+            desc: "柔弱只是我的假象，强韧才是我的本色。我心如故，向阳而生。", 
+            analysis: "你拥有一种大智慧，思维清晰，逻辑缜密。你像藤蔓一样善于审时度势，懂得借力打力，在各种复杂的环境中都能找到向上的路径。你外表可能看起来文静柔弱，实则内心韧性极强，遇到困难绝不轻言放弃，拥有极强的解决问题能力和适应力。", 
+            advice: "向上攀登追求卓越是好事，但别忘了扎根土壤。基础打得越牢，你的风景才越稳固。在利用周围资源的同时，也要注意维护好人际关系的根基，真诚的互助比单向的索取更能让你走得长远。" 
+        },
+        "E_T_Zen_Slow": { 
+            name: "🌲 雪松 (Cedar)", emoji: "🌲", keywords: "高尚 · 长寿 · 不屈 · 栋梁", 
+            desc: "岁寒，然后知松柏之后凋也。时间会证明一切价值。", 
+            analysis: "虽然从生物学上你属于树，但在花语界，你拥有雪松般沉稳、理性的灵魂。你少年老成，情绪稳定，总给人一种极其可靠的安全感。你不追求一时的绚烂和掌声，更看重长远的价值积累和内心的原则。你是团队中的定海神针，是值得托付重任的栋梁。", 
+            advice: "太过的沉稳和理性，有时会让你显得有些严肃和沉闷，让人产生距离感。生活除了责任和原则，还有诗和远方。偶尔像花朵一样，无目的地释放一下天性，做一些看似“无用”但快乐的事，给生活加点色彩。" 
+        },
+        "E_T_Romantic_Fast": { 
+            name: "🌷 郁金香 (Tulip)", emoji: "🌷", keywords: "博爱 · 体贴 · 高雅 · 完美", 
+            desc: "最迷人的高贵，是不动声色的优雅。", 
+            analysis: "你举止优雅，进退有度，非常在意自己的形象和体面。你理性而务实，懂得如何用最优雅、最高效的方式达成目标。你像郁金香一样，色彩丰富但线条简洁，不喜欢拖泥带水。你在社交场合中总是如鱼得水，能照顾到大多数人的感受，但又保持着一份矜持。", 
+            advice: "时刻保持完美的面具是很累的。其实，真实的瑕疵有时候比完美的面具更迷人、更鲜活。试着在亲近的人面前，展露一点点小脾气或小缺点，这反而会增加你的亲和力，让人觉得你更加真实可信。" 
+        },
+        "E_T_Unique_Slow": { 
+            name: "🪴 捕蝇草 (Venus Flytrap)", emoji: "🪴", keywords: "敏锐 · 守护 · 危险迷人", 
+            desc: "我是温柔的陷阱，只捕获那些自投罗网的惊喜。", 
+            analysis: "你非常特别，甚至带有一点点迷人的“危险”气息。你的洞察力极强，对环境的感知异常敏锐，任何风吹草动都逃不过你的眼睛。你理性、冷静，善于捕捉机会，不轻易出手，但一出手必中。你有着独特的自我保护机制，只有真正懂你的人才能靠近。", 
+            advice: "不要总是处于一级战备的防御和捕猎状态，这样会让你的神经一直紧绷。试着放松下来，去欣赏那些对你没有“营养”但很美好的事物。学会享受无所事事的时光，而不是时刻计算着投入产出比。" 
+        },
+
+        // --- E (喜阳) + F (感性) ---
+        "E_F_Royal_Fast": { 
+            name: "🌺 牡丹 (Peony)", emoji: "🌺", keywords: "圆满 · 浓情 · 富贵 · 端庄", 
+            desc: "唯有牡丹真国色，花开时节动京城。", 
+            analysis: "你天生自带“大女主”或“主角”气场。你热情、大方、自信，喜欢热闹和被人簇拥的感觉。你从不吝啬表达自己的情感，你的爱是热烈、浓郁且坦荡的。你追求高品质的生活，容不下瑕疵和敷衍，你值得拥有世间最好的一切。", 
+            advice: "在享受繁华和众人瞩目的同时，也要学会享受独处的清净。内心的丰盈和宁静，比外界的排场更能滋养你的灵魂。当你不再需要外界的掌声来证明自己时，你才是真正的内心富足。" 
+        },
+        "E_F_Royal_Slow": { 
+            name: "🌸 樱花 (Sakura)", emoji: "🌸", keywords: "纯洁 · 热烈 · 刹那芳华", 
+            desc: "生命就要像樱花一样，即使短暂，也要绚烂至极。", 
+            analysis: "你追求极致的浪漫和美感。你像樱花一样，要么不开放，一开放就是倾尽全力的绚烂，不留余地。你极具感染力，能瞬间点燃周围的气氛，带给人们美好。你珍视当下的每一刻，带有一种“物哀”的日式审美情趣，感性而深情。", 
+            advice: "绚烂虽然美好，但往往短暂，容易让人产生巨大的落差感。试着去寻找一些更恒久、细水长流的快乐源泉，建立一些长期的目标和关系，让你的生命之树不仅开花，也能结出丰硕的果实。" 
+        },
+        "E_F_Wild_Fast": { 
+            name: "🌼 雏菊 (Daisy)", emoji: "🌼", keywords: "天真 · 和平 · 希望 · 阳光", 
+            desc: "永远年轻，永远热泪盈眶，永远相信童话。", 
+            analysis: "你永远像个孩子一样快乐、单纯、充满活力。你随遇而安，给点阳光就灿烂，拥有强大的自愈能力。你没有太多的心机，和谁都能玩到一块去。你是大家的开心果，有你在的地方就没有阴霾，你的笑容能治愈一切不开心的事。", 
+            advice: "天真是你最宝贵的武器，但在这个复杂的森林里，也要学会识别伪装的大灰狼。保持纯真的心，但也要带点锋芒和警惕。学会保护自己，你的快乐才能更加长久和安全。" 
+        },
+        "E_F_Wild_Slow": { 
+            name: "🏖️ 扶桑花 (Hibiscus)", emoji: "🏖️", keywords: "新鲜 · 微妙 · 热情 · 当下", 
+            desc: "每一天都是新的爱恋，每一刻都值得尽情燃烧。", 
+            analysis: "你热情奔放，充满了迷人的热带风情。你的情感丰富而细腻，容易全身心地投入一段感情或兴趣，但也容易感到厌倦。你活在当下，追求感官的极致刺激和快乐，不喜欢沉重的承诺和遥远的未来，你是天生的享乐主义者。", 
+            advice: "热情是好事，但持久的热情才更可贵。频繁的切换可能会让你感到空虚。试着在一件事或一段关系上深耕，去体会那种随着时间沉淀下来的深层美好，你会发现不一样的风景。" 
+        },
+        "E_F_Zen_Fast": { 
+            name: "🪷 睡莲 (Water Lily)", emoji: "🪷", keywords: "洁净 · 纯真 · 妖艳 · 疏离", 
+            desc: "半梦半醒人间，出淤泥而不染。", 
+            analysis: "你拥有一种动静皆宜的神奇魅力。你在社交场上游刃有余，长袖善舞，但内心始终保留着一片不被打扰的清净之地。你感性而温柔，像水一样包容万物，但也有自己的底线和原则，让人既想亲近又不敢亵渎。", 
+            advice: "不要因为过度的包容而失去了自我。在适应环境、左右逢源的同时，记得时刻擦拭你的内心，保持你那份独特的“出淤泥而不染”。你的边界感正是你的魅力所在。" 
+        },
+        "E_F_Romantic_Fast": { 
+            name: "💐 绣球花 (Hydrangea)", emoji: "💐", keywords: "希望 · 团聚 · 多变 · 缘分", 
+            desc: "无论你是什么颜色，我都愿意变成与你相配的色彩。", 
+            analysis: "你非常重视人际关系、家庭和团聚。你像绣球花一样，喜欢抱团，在群体中能找到最大的安全感和归属感。你情感细腻，善解人意，但性格也有些多变，容易受环境和他人情绪的影响而改变自己的心意。", 
+            advice: "你是一个很好的倾听者和配合者，但也要学会坚定地表达自己的需求。不要为了迎合环境、讨好他人而频繁改变自己的“颜色”，那样会让你迷失。做最真实的自己，自然会吸引同频的人。" 
+        },
+        "E_F_Romantic_Slow": { 
+            name: "🥚 鸡蛋花 (Plumeria)", emoji: "🥚", keywords: "孕育 · 复活 · 新生 · 简单", 
+            desc: "简单是终极的复杂，温柔是最大的力量。", 
+            analysis: "你给人一种简单、干净、极致治愈的感觉。你没有攻击性，总是散发着淡淡的、令人安心的清香。你乐于助人，性格温和，是那种让人相处起来非常舒服、毫无压力的人。你就像阳光下的海岛度假村，让人身心放松。", 
+            advice: "你的好脾气有时会被人当作软弱可欺。在保持善良和温柔的同时，也要学会说“不”，建立自己的原则底线。记住，你的善良很贵，不能随意挥霍给不值得的人。" 
+        },
+        "E_F_Unique_Slow": { 
+            name: "🦋 蝴蝶兰 (Phalaenopsis)", emoji: "🦋", keywords: "幸福 · 高洁 · 灵动 · 精致", 
+            desc: "幸福向你飞来，只为那一刻的驻足。", 
+            analysis: "你优雅、精致，对生活品质有着极高的要求。你像一只停留的花朵上的蝴蝶，灵动而美丽，仿佛不食人间烟火。你感性且敏感，需要精心的呵护、关注和优渥的环境才能展现最美的状态，你天生就是一件艺术品。", 
+            advice: "在这个有时会显得粗糙的世界里，学会自己给自己营造小环境，修剪内心的枝叶。不要太依赖外界的供给和评价，让自己的根扎得更深一些，这样即使风雨来临，你也能优雅地起舞。" 
+        },
+
+        // --- I (耐阴) + T (理性) ---
+        "I_T_Royal_Fast": { 
+            name: "🎋 竹子 (Bamboo)", emoji: "🎋", keywords: "气节 · 高升 · 平安 · 虚心", 
+            desc: "宁可食无肉，不可居无竹。心中有节，自成风景。", 
+            analysis: "虽然生物学上不是花，但你的灵魂属于竹子。你正直、坚韧，极其讲究原则。你外表虚心，内心有节，不卑不亢。你不喜欢各种无效社交，更愿意独自成长，积蓄力量。你遇到风雨会弯腰，但绝不折断，拥有极强的反弹力。", 
+            advice: "过刚则易折。在坚持原则的同时，学会一点点圆融的智慧，会让你的路走得更顺。偶尔的妥协不是认输，而是为了更好地蓄势待发。试着对周围的人多一点温情，你会发现世界没那么冷硬。" 
+        },
+        "I_T_Royal_Slow": { 
+            name: "🌲 松树 (Pine)", emoji: "🌲", keywords: "坚定 · 长寿 · 沉稳 · 永恒", 
+            desc: "听松涛，见真我。不为繁华易素心。", 
+            analysis: "你是一个坚定的长期主义者，理性、沉稳、耐得住寂寞。你不追求一时的流行和热度，而看重永恒的真理和价值。你像松树一样，越是严寒的环境，越能显出你的苍翠和挺拔。你是那种大器晚成、厚积薄发的人。", 
+            advice: "不要让自己活得太沉重、太紧绷。人生是一场马拉松，不是苦行僧的修行。偶尔放下肩上的重担，感受一下微风拂面的轻盈，去欣赏路边的野花，这并不会阻碍你到达终点，反而会增加旅途的乐趣。" 
+        },
+        "I_T_Wild_Fast": { 
+            name: "🌿 蕨类 (Fern)", emoji: "🌿", keywords: "诚实 · 秘密 · 生命力 · 探索", 
+            desc: "在阴影中野蛮生长，在沉默中积蓄力量。", 
+            analysis: "你低调神秘，生命力极强。你不需要鲜艳的花朵来博取眼球，你用独特的叶形和姿态展示自己独特的审美。你理性、冷静，喜欢在阴影中观察世界，分析规律，不喜欢暴露在聚光灯下。你是一个很好的观察者和思考者。", 
+            advice: "你是一本耐读的书，但如果不打开封面，没人知道你的精彩。适当地展示自己，发出自己的声音，你会吸引到那些真正懂你、欣赏你的同类。不要让你的才华被埋没在阴影里。" 
+        },
+        "I_T_Wild_Slow": { 
+            name: "🎍 芦荟 (Aloe)", emoji: "🎍", keywords: "自尊 · 洁身自好 · 治愈", 
+            desc: "沉默的治愈者，将苦涩留给自己，将清凉留给人间。", 
+            analysis: "你实用、低调，拥有强大的自愈能力。你平时不声不响，但在关键时刻非常有用，总能解决实际问题或治愈他人。你理性务实，懂得把自己的水分和养分都锁在体内，不轻易外露，给人一种淡淡的疏离感。", 
+            advice: "你总是默默治愈别人，谁来治愈你呢？学会表达你的疼痛和需求，Seeking help is not weakness. 打开你的心扉，让阳光照进来，你会发现，被人照顾也是一种幸福。" 
+        },
+        "I_T_Zen_Fast": { 
+            name: "🍵 茶花 (Camellia)", emoji: "🍵", keywords: "理想 · 谦让 · 秩序 · 完美", 
+            desc: "慢下来，喝口茶，品味生活本来的味道。", 
+            analysis: "你端庄、内敛，追求完美。即使凋谢时也是一片片落下，非常体面，不愿展现狼狈的一面。你理性而克制，不随便释放情感，凡事讲究规矩和秩序。你追求一种秩序井然的美感，按部就班地过好自己的生活。", 
+            advice: "太过的克制和追求完美，会让你错过很多热烈、失控但精彩的生命体验。偶尔打破一下常规，失控一次，大哭或大笑一场，也是一种真实的美。生活不需要时刻紧绷，放松一点。" 
+        },
+        "I_T_Zen_Slow": { 
+            name: "🍃 薄荷 (Mint)", emoji: "🍃", keywords: "美德 · 智慧 · 清醒 · 冷静", 
+            desc: "永远保持清醒的头脑，做最理智的旁观者。", 
+            analysis: "你自带清凉感，能让周围躁动的人平静下来。你非常理性、客观，像一阵凉爽的风，总能一针见血地指出问题的本质。你不喜欢黏腻的人际关系，追求思想上的独立和自由。你拥有强大的净化能力。", 
+            advice: "有时候太清醒、太理智会让人觉得冷漠，缺乏人情味。试着多一点感性的温度，多一点对他人的包容和理解。智慧如果不带温度，就只是一把冰冷的手术刀。" 
+        },
+        "I_T_Romantic_Slow": { 
+            name: "💜 薰衣草 (Lavender)", emoji: "💜", keywords: "等待 · 安静 · 守护 · 距离", 
+            desc: "等待爱情的奇迹，在风中诉说无声的承诺。", 
+            analysis: "你外表看起来浪漫，其实内心非常理性冷静。你喜欢独处，享受安静的时光，通过距离来产生美。你的香气（影响力）是淡淡的、持久的。你守得住寂寞，在自己的节奏里慢慢生长，不急不躁。", 
+            advice: "等待是美丽的，但主动出击有时更有效。不要让“等待”成为你停滞不前、逃避现实的借口。当你想要什么的时候，勇敢地伸出手去抓，也许奇迹就会发生。" 
+        },
+
+        // --- I (耐阴) + F (感性) ---
+        "I_F_Royal_Fast": { 
+            name: "🥀 黑玫瑰 (Black Rose)", emoji: "🥀", keywords: "真心 · 独一无二 · 极致", 
+            desc: "你是恶魔，且为我所有。爱之深，恨之切。", 
+            analysis: "你神秘、高冷，带有一种暗黑的哥特气质和致命的吸引力。你感性深沉，情感极其浓烈，但不轻易表露内心。你独特的存在感让人无法忽视，你不需要阳光，你在黑夜里独自绽放，享受孤独的高贵。", 
+            advice: "不要沉溺于忧伤和黑暗的美学中无法自拔。尝试走出你构建的城堡，外面的阳光其实很暖，世界也有它明亮温暖的一面。试着信任别人，给自己一个被光照亮的机会。" 
+        },
+        "I_F_Royal_Slow": { 
+            name: "⚜️ 百合 (Lily)", emoji: "⚜️", keywords: "顺利 · 高贵 · 纯洁 · 优雅", 
+            desc: "百年好合，岁月静好。愿你一生无忧。", 
+            analysis: "你清雅、纯洁，散发着幽香。你性格内向但温和，给人一种大家闺秀般的感觉，举手投足间尽是优雅。你情感细腻，非常在意精神层面的洁癖，容不下一点杂质和谎言。你是理想主义的化身。", 
+            advice: "这个世界是复杂的，由黑白灰交织而成。太过的洁癖和理想化会让你活得很累，容易对现实失望。试着接纳人性的灰度和不完美，你会发现世界变得更宽广，你的心也会更自由。" 
+        },
+        "I_F_Wild_Fast": { 
+            name: "🔔 铃兰 (Lily of the Valley)", emoji: "🔔", keywords: "幸福归来 · 谦逊 · 纯粹", 
+            desc: "只要你哪怕一次回首，就会听到风吹过的声音。", 
+            analysis: "你小巧、精致，总是在角落里默默低头绽放，不争不抢。你性格内向害羞，但内心充满善意和纯粹的爱。你像风铃一样，风一吹就发出清脆的声响（虽然听不见，但能感觉到你的灵动）。你给人带来幸福的预感。", 
+            advice: "你很美好，值得被更多人看见，不仅仅是那些偶然路过的人。试着抬起头来，自信地展示你的笑容。不要因为害羞而错过了表达自己的机会，你的声音值得被世界听到。" 
+        },
+        "I_F_Wild_Slow": { 
+            name: "🍄 蘑菇 (Mushroom)", emoji: "🍄", keywords: "独特 · 幻想 · 暗恋 · 魔法", 
+            desc: "我在角落里做梦，梦里有一整个奇幻宇宙。", 
+            analysis: "虽然生物学上不是花，但你的属性很像。你也是独特的生命体，喜欢阴暗潮湿的角落。你感性、敏感，拥有极其丰富的内心戏和想象力。你是个可爱的“社恐”，活在自己构建的奇幻世界里，有趣而深邃。", 
+            advice: "你的内心是一个宝藏。尝试通过创作（写作、绘画、音乐）把你的内心世界表达出来，你会发现你的想象力能惊艳世界。不要害怕与众不同，那是你最珍贵的天赋。" 
+        },
+        "I_F_Zen_Fast": { 
+            name: "✨ 满天星 (Baby's Breath)", emoji: "✨", keywords: "配角 · 清纯 · 关怀 · 默默", 
+            desc: "聚是一团火，散是满天星。我不做主角，只做你的光。", 
+            analysis: "你温柔、低调，不争不抢。你习惯站在角落，或者作为陪衬，觉得舒适且安全。你感性而柔软，总是默默支持着别人，关注细节。你觉得成全别人也是一种快乐，是团队中最好的辅助。", 
+            advice: "你是最好的配角，但你也完全可以做自己人生的主角。不要总是为了别人而活，忽略了自己的需求。试着在一次舞台上，勇敢地站在聚光灯下，接受掌声，你值得被看见。" 
+        },
+        "I_F_Romantic_Fast": { 
+            name: "💙 勿忘我 (Forget-me-not)", emoji: "💙", keywords: "永恒 · 浓情 · 记忆 · 深情", 
+            desc: "请不要忘记我，真爱是永恒的回忆。", 
+            analysis: "你重情重义，非常念旧。你感性深情，一旦建立了连接，就希望是永恒。你活在回忆里的时候比较多，喜欢收藏旧物和旧时光，对过去的人和事念念不忘。你的爱是深沉而持久的。", 
+            advice: "回忆很美，但未来更值得期待。别总是回头看，那样会让你错过眼前的风景。学会放手，学会告别，清理内心的空间，才能迎接新的美好。此时此刻，才是最珍贵的。" 
+        },
+        "I_F_Romantic_Slow": { 
+            name: "🟣 紫罗兰 (Violet)", emoji: "🟣", keywords: "美德 · 质朴 · 永恒 · 忠诚", 
+            desc: "在静默中爱着你，把芬芳留给踩踏我的脚后跟。", 
+            analysis: "你质朴、内敛，拥有一种静谧而持久的美。你感性而忠诚，不追求轰轰烈烈，只向往细水长流的感情。你像躲在草丛里的宝石，不张扬，但等待懂你的人发现。你拥有宽恕和包容的美德。", 
+            advice: "你的美德是你最大的财富。保持这份质朴，在这个浮躁的世界上，你就是一股清流。但也要记得，善良要有锋芒，不要让你的宽容变成别人伤害你的借口。爱别人的同时，更要爱自己。" 
+        }
+    };
+
+    // 补足30个Emoji用于背景网格
+    const flowerEmojis = Object.values(flowerData).map(f => f.emoji);
+    while (flowerEmojis.length < 30) { flowerEmojis.push("🌸"); }
+
+    // ==========================================
+    // 📝 60道题目库 (完整升级版：更长文案，更多细节)
+    // ==========================================
+    const questions = [
+        // E/I (1-15)
+        { text: "1. 清晨的第一缕阳光透过窗帘洒在脸上，那一刻你的本能反应是？", options: [{t:"感觉浑身充满了电量，迫不及待想要出门拥抱世界",p:"E"}, {t:"觉得光线有点刺眼，想拉紧窗帘继续缩在被窝里",p:"I"}, {t:"心情瞬间变好，走到阳台深呼吸，伸个大懒腰",p:"E"}, {t:"内心很平静，默默起身去厨房开始做早餐",p:"I"}] },
+        { text: "2. 如果你是一朵花，你更希望自己被种在花园的哪个位置？", options: [{t:"最显眼的花坛中央C位，接受所有人的赞美目光",p:"E"}, {t:"安静的墙角或树荫下，独自享受斑驳的光影",p:"I"}, {t:"人来人往的路边，方便和每一个路人打招呼",p:"E"}, {t:"精致的温室玻璃房里，拥有自己的一方小天地",p:"I"}] },
+        { text: "3. 终于到了期待已久的周末，你理想中的度过方式是？", options: [{t:"约上一群朋友去网红店打卡、野餐或逛街",p:"E"}, {t:"宅在家里侍弄花草、看书、追剧，谁也别烦我",p:"I"}, {t:"去参加一个热闹的音乐节或市集，认识新朋友",p:"E"}, {t:"一个人背上包去森林徒步，听鸟叫虫鸣",p:"I"}] },
+        { text: "4. 当你感到疲惫时，什么样的方式能让你最快“回血”？", options: [{t:"找人聊天、吐槽，沉浸在热烈的社交氛围中",p:"E"}, {t:"独处、发呆、静默，切断与外界的一切联系",p:"I"}, {t:"获得外界的认可、掌声和赞美",p:"E"}, {t:"完成一件小事带来的内心满足和平静",p:"I"}] },
+        { text: "5. 在一个全是陌生人的聚会上，你会怎么做？", options: [{t:"主动绽放自信的笑容，寻找看起来友善的人开启话题",p:"E"}, {t:"像含苞待放的花朵一样，在角落等待别人先靠近",p:"I"}, {t:"热情地向大家介绍自己，迅速融入圈子",p:"E"}, {t:"保持礼貌的微笑和距离，观察周围的环境",p:"I"}] },
+        { text: "6. 你的心情通常更容易被哪种天气所影响或代表？", options: [{t:"艳阳高照、万里无云的晴天",p:"E"}, {t:"阴雨绵绵、适合听雨的雨天",p:"I"}, {t:"微风拂面、生机勃勃的春天",p:"E"}, {t:"落叶纷飞、略带萧瑟的秋天",p:"I"}] },
+        { text: "7. 打开你的手机社交软件，通常是什么状态？", options: [{t:"消息红点99+，各种群聊都很活跃，回复不过来",p:"E"}, {t:"常年开启免打扰模式，消息随缘回复，甚至经常意念回复",p:"I"}, {t:"朋友圈几乎日更，乐于分享生活的点点滴滴",p:"E"}, {t:"朋友圈三天可见，或者仅自己可见，很少发动态",p:"I"}] },
+        { text: "8. 在一个团队或群体活动中，你通常扮演的角色是？", options: [{t:"积极的组织者、领导者或核心人物",p:"E"}, {t:"冷静的观察者、配合者或执行者",p:"I"}, {t:"负责搞气氛、让大家开心的担当",p:"E"}, {t:"默默做事、不求关注的“透明人”",p:"I"}] },
+        { text: "9. 遇到非常不开心的事情，你的第一反应是？", options: [{t:"马上找朋友倾诉，把苦水全部倒出来就好了",p:"E"}, {t:"自己消化，躲进壳里，不想让任何人知道",p:"I"}, {t:"通过大吃一顿、疯狂购物或运动来发泄",p:"E"}, {t:"写日记、听悲伤的歌，分析情绪的来源",p:"I"}] },
+        { text: "10. 你内心深处更向往哪种意境的生活？", options: [{t:"繁花似锦，烈火烹油，热烈而精彩",p:"E"}, {t:"幽兰空谷，清风明月，清净而自在",p:"I"}, {t:"每天都有新鲜事发生，充满变数",p:"E"}, {t:"每天都安稳有序，岁月静好",p:"I"}] },
+        { text: "11. 关于分享秘密这件小事，你的习惯是？", options: [{t:"心里藏不住话，容易因为信任而说漏嘴",p:"E"}, {t:"守口如瓶，是一个非常好的“树洞”",p:"I"}, {t:"喜欢交换信息，觉得这是拉近关系的方式",p:"E"}, {t:"连自己的秘密都很少说，防备心较强",p:"I"}] },
+        { text: "12. 你如何看待“孤独”这种状态？", options: [{t:"一种折磨，需要通过社交来摆脱",p:"E"}, {t:"一种享受，是自我充电的最佳时刻",p:"I"}, {t:"偶尔可以，但时间长了会受不了",p:"E"}, {t:"人生的常态，也是自由的代价",p:"I"}] },
+        { text: "13. 在KTV或者大型聚会里，你通常在做什么？", options: [{t:"麦霸，每首歌都会唱，或者在那拼酒",p:"E"}, {t:"坐在角落玩手机、吃水果，观察大家",p:"I"}, {t:"负责摇骰子、组织游戏，搞热气氛",p:"E"}, {t:"虽然人在那里，但心里只想早点回家",p:"I"}] },
+        { text: "14. 你做决定的速度通常是怎样的？", options: [{t:"很快，直觉告诉我该怎么做，当场拍板",p:"E"}, {t:"很慢，需要反复权衡利弊，犹豫不决",p:"I"}, {t:"喜欢听取大家的意见，综合考虑",p:"E"}, {t:"只听从内心的声音，不受外界干扰",p:"I"}] },
+        { text: "15. 如果用自然元素形容自己，你觉得自己更像？", options: [{t:"一团燃烧的火，温暖甚至灼热",p:"E"}, {t:"一块坚硬的冰，保持冷静和距离",p:"I"}, {t:"一阵自由的风，无拘无束",p:"E"}, {t:"一棵扎根的树，沉默且坚定",p:"I"}] },
+        
+        // T/F (16-30)
+        { text: "16. 看到路边有一只可怜的流浪猫，你会？", options: [{t:"思考怎么联系救助机构或寻找领养",p:"T"}, {t:"心都要化了，第一反应是想带回家养",p:"F"}, {t:"理性分析自己目前的条件是否适合养猫",p:"T"}, {t:"不管那么多，先喂它点吃的，陪它玩一会",p:"F"}] },
+        { text: "17. 很好的朋友向你借一笔钱，你会？", options: [{t:"问清楚用途，甚至要求写个借条",p:"T"}, {t:"关系这么好，借就借吧，不好意思拒绝",p:"F"}, {t:"心里默默评估他还钱的能力和风险",p:"T"}, {t:"担心不借会伤感情，哪怕自己吃紧也借",p:"F"}] },
+        { text: "18. 看电影或电视剧时，你更关注什么？", options: [{t:"剧情逻辑是否有漏洞，推理是否严密",p:"T"}, {t:"演员的情感是否到位，能否引起共鸣",p:"F"}, {t:"导演的拍摄手法、剪辑和构图技巧",p:"T"}, {t:"故事本身是否感人，是否打动人心",p:"F"}] },
+        { text: "19. 当你面对别人的批评时，你的第一反应？", options: [{t:"冷静分析他说得对不对，有则改之",p:"T"}, {t:"感到委屈、难过，甚至想哭",p:"F"}, {t:"思考如何改进，下次做得更好",p:"T"}, {t:"觉得对方是不是不喜欢我，针对我",p:"F"}] },
+        { text: "20. 你认为什么是真正的“真理”？", options: [{t:"客观存在的、可被验证的科学规律",p:"T"}, {t:"每个人主观感受到的、坚信的信念",p:"F"}, {t:"逻辑自洽的、没有矛盾的体系",p:"T"}, {t:"充满爱与关怀的、能温暖人心的力量",p:"F"}] },
+        { text: "21. 假如你要在自家院子里种花，你会？", options: [{t:"科学规划种植密度、花期搭配和光照分区",p:"T"}, {t:"凭感觉种，喜欢什么种什么，乱一点也美",p:"F"}, {t:"先研究土壤酸碱度，购买专业的肥料",p:"T"}, {t:"每天对着花说话，给它们放音乐听",p:"F"}] },
+        { text: "22. 与人发生激烈的争论时，你？", options: [{t:"摆事实讲道理，试图以理服人",p:"T"}, {t:"容易情绪激动，声音变大，甚至气哭",p:"F"}, {t:"敏锐地指出对方话语中的逻辑谬误",p:"T"}, {t:"为了维护关系和谐，选择妥协或闭嘴",p:"F"}] },
+        { text: "23. 在工作或生活中，你觉得自己更擅长处理？", options: [{t:"复杂的数据、信息和抽象的概念",p:"T"}, {t:"微妙的人际关系和复杂的情绪",p:"F"}, {t:"制定详细的计划和规则",p:"T"}, {t:"提供情绪价值和安慰",p:"F"}] },
+        { text: "24. 去花店买花，你挑选的标准是？", options: [{t:"花期长短、是否好养、是否新鲜",p:"T"}, {t:"第一眼的感觉、颜色是否喜欢、缘分",p:"F"}, {t:"性价比高不高，价格是否合理",p:"T"}, {t:"花语和寓意是否美好，能否代表心情",p:"F"}] },
+        { text: "25. 你更希望别人如何评价你？", options: [{t:"聪明、能干、专业、逻辑强",p:"T"}, {t:"温柔、善良、美好、共情能力强",p:"F"}, {t:"有思想、有深度、不仅是花瓶",p:"T"}, {t:"懂生活、有情趣、是个有趣的灵魂",p:"F"}] },
+        { text: "26. 遇到一个棘手的困难，你首先会？", options: [{t:"寻找技术上的解决方案，分析问题根源",p:"T"}, {t:"寻求亲友的情感支持，缓解焦虑",p:"F"}, {t:"将大问题拆解成小步骤逐一解决",p:"T"}, {t:"先调整自己的心态，告诉自己能行",p:"F"}] },
+        { text: "27. 你如何看待“规则”？", options: [{t:"必须遵守，没有规矩不成方圆",p:"T"}, {t:"可以通融，要看具体情况和人情",p:"F"}, {t:"规则是效率和公平的保障",p:"T"}, {t:"有时规则太冷酷无情，需要打破",p:"F"}] },
+        { text: "28. 你的办公桌或书桌通常是什么状态？", options: [{t:"井井有条，文件分类清晰，一目了然",p:"T"}, {t:"摆满可爱的装饰品、照片，有点乱",p:"F"}, {t:"极简主义，只放必要的东西",p:"T"}, {t:"乱但温馨，有一种只有自己懂的秩序",p:"F"}] },
+        { text: "29. 面对离别（分手或朋友离开），你？", options: [{t:"冷静接受，告诉自己这是自然规律",p:"T"}, {t:"依依不舍，泪流满面，很久走不出来",p:"F"}, {t:"思考下一步的安排，生活还得继续",p:"T"}, {t:"沉浸在悲伤的回忆中，反复咀嚼",p:"F"}] },
+        { text: "30. 在做重大抉择时，你更相信？", options: [{t:"大脑的理性判断和利弊分析",p:"T"}, {t:"心底的直觉和第一反应",p:"F"}, {t:"权威的科学数据和统计",p:"T"}, {t:"冥冥之中的命运安排和缘分",p:"F"}] },
+
+        // Style (31-45)
+        { text: "31. 如果你真的是一朵花，你希望自己长成什么样？", options: [{t:"雍容华贵，艳压群芳，做花中之王",p:"Royal"}, {t:"清新自然，随风摇曳，充满野性美",p:"Wild"}, {t:"清雅高洁，遗世独立，不与世俗同流",p:"Zen"}, {t:"浪漫梦幻，粉色泡泡，人见人爱",p:"Romantic"}] },
+        { text: "32. 你平时喜欢的穿衣风格更偏向？", options: [{t:"大牌设计，质感高级，剪裁考究",p:"Royal"}, {t:"波西米亚，棉麻质地，自由舒适",p:"Wild"}, {t:"极简主义，黑白灰，性冷淡风",p:"Zen"}, {t:"独特小众，设计感强，绝不撞衫",p:"Unique"}] },
+        { text: "33. 如果送你一张机票，你最想去哪里？", options: [{t:"巴黎、迪拜、纽约等繁华时尚都市",p:"Royal"}, {t:"非洲草原、亚马逊雨林或无人海岛",p:"Wild"}, {t:"京都寺庙、深山道观或西藏",p:"Zen"}, {t:"普罗旺斯薰衣草花田或迪士尼乐园",p:"Romantic"}] },
+        { text: "34. 翻看你的朋友圈，通常发的是什么内容？", options: [{t:"精致的下午茶、高档餐厅或成就展示",p:"Royal"}, {t:"搞怪自拍、户外风景或旅行记录",p:"Wild"}, {t:"富有哲理的一句话、书摘或空镜",p:"Zen"}, {t:"充满艺术感的摄影作品或小众音乐",p:"Unique"}] },
+        { text: "35. 刚认识的朋友对你的第一印象通常是？", options: [{t:"气场强大，有点高冷，不敢轻易靠近",p:"Royal"}, {t:"好相处，自来熟，没有什么架子",p:"Wild"}, {t:"温柔文静，说话轻声细语，很有礼貌",p:"Romantic"}, {t:"有个性，酷酷的，很难捉摸",p:"Unique"}] },
+        { text: "36. 你的房间装饰风格更接近？", options: [{t:"欧式宫廷风，复古奢华，有水晶灯",p:"Royal"}, {t:"田园风，原木色，摆满了各种植物",p:"Wild"}, {t:"新中式或日式诧寂风，留白很多",p:"Zen"}, {t:"ins风，有很多少女心的摆件和灯串",p:"Romantic"}] },
+        { text: "37. 你耳机里常听的音乐类型是？", options: [{t:"古典乐、歌剧或气势磅礴的交响乐",p:"Royal"}, {t:"摇滚、民谣或节奏感强的流行歌",p:"Wild"}, {t:"轻音乐、白噪音、古琴或冥想音乐",p:"Zen"}, {t:"爵士、独立小众音乐或实验电子",p:"Unique"}] },
+        { text: "38. 你理想中的恋爱关系模式是？", options: [{t:"势均力敌，强强联合，像国王与王后",p:"Royal"}, {t:"一起疯一起玩，无拘无束，浪迹天涯",p:"Wild"}, {t:"相敬如宾，平淡是真，灵魂伴侣",p:"Zen"}, {t:"像偶像剧一样的浪漫情节，充满惊喜",p:"Romantic"}] },
+        { text: "39. 当你遇到非常不公平的事情时，你会？", options: [{t:"利用自己的资源和地位去解决",p:"Royal"}, {t:"直接冲上去理论，大吵一架也不怕",p:"Wild"}, {t:"看淡一切，不予计较，吃亏是福",p:"Zen"}, {t:"用一种非常独特、意想不到的方式反击",p:"Unique"}] },
+        { text: "40. 在你的人生价值观里，什么最重要？", options: [{t:"尊严、面子和影响力",p:"Royal"}, {t:"自由、快乐和体验",p:"Wild"}, {t:"内心的平静和精神的超脱",p:"Zen"}, {t:"独特、自我和不可替代性",p:"Unique"}] },
+        { text: "41. 你平时更喜欢读什么类型的书？", options: [{t:"名人传记、管理学、成功学",p:"Royal"}, {t:"游记、科幻小说、冒险故事",p:"Wild"}, {t:"哲学、宗教、心理学",p:"Zen"}, {t:"诗歌、散文、言情小说",p:"Romantic"}] },
+        { text: "42. 你的社交圈子大概是怎样的？", options: [{t:"精英圈层，都是各行各业的大佬",p:"Royal"}, {t:"三教九流都有，朋友遍天下",p:"Wild"}, {t:"君子之交淡如水，很少社交",p:"Zen"}, {t:"只有几个真正懂我的知己，极其挑剔",p:"Unique"}] },
+        { text: "43. 你对“名利”的态度是？", options: [{t:"渴望成功，希望能站在顶峰",p:"Royal"}, {t:"够花就行，开心最重要，不想太累",p:"Wild"}, {t:"身外之物，生不带来死不带去",p:"Zen"}, {t:"那是庸俗的东西，我不屑一顾",p:"Unique"}] },
+        { text: "44. 如果选一款香水，你偏好？", options: [{t:"馥郁的花香调，留香很久",p:"Royal"}, {t:"清新的柑橘调或海洋调",p:"Wild"}, {t:"沉稳的木质调或檀香",p:"Zen"}, {t:"神秘的东方调或药感",p:"Unique"}] },
+        { text: "45. 如果要用一个词形容你的灵魂？", options: [{t:"高贵",p:"Royal"}, {t:"野性",p:"Wild"}, {t:"佛系",p:"Zen"}, {t:"怪诞",p:"Unique"}] },
+
+        // Speed (46-60)
+        { text: "46. 接到一个从未做过的新任务，你会？", options: [{t:"马上开始做，先完成再说，边做边改",p:"Fast"}, {t:"先构思几天，查阅资料，不着急下手",p:"Slow"}, {t:"追求效率，哪怕粗糙一点也没关系",p:"Fast"}, {t:"力求完美，慢工出细活，细节控",p:"Slow"}] },
+        { text: "47. 你觉得自己是急性子还是慢性子？", options: [{t:"超级急，最怕磨蹭，走路都带风",p:"Fast"}, {t:"很慢，天塌了也不急，按部就班",p:"Slow"}, {t:"风风火火，想到一出是一出",p:"Fast"}, {t:"温吞水，怎么催都没用",p:"Slow"}] },
+        { text: "48. 面对喜欢的限量款商品，你会？", options: [{t:"立刻下单，手慢无，买了再说",p:"Fast"}, {t:"犹豫再三，想想到底需不需要，比价",p:"Slow"}, {t:"冲动消费是常态，经常买完后悔",p:"Fast"}, {t:"理性消费是美德，很少冲动",p:"Slow"}] },
+        { text: "49. 平时走路的状态？", options: [{t:"步速很快，经常超车，受不了前面慢",p:"Fast"}, {t:"散步式走路，慢慢悠悠看风景",p:"Slow"}, {t:"不喜欢等红灯，总想冲过去",p:"Fast"}, {t:"经常被人催“快一点”",p:"Slow"}] },
+        { text: "50. 你相信一见钟情吗？", options: [{t:"相信，感觉来了挡都挡不住，要抓住",p:"Fast"}, {t:"不信，感情需要时间培养和了解",p:"Slow"}, {t:"爱就要快，不爱就拉倒",p:"Fast"}, {t:"日久生情才是最靠谱的",p:"Slow"}] },
+        { text: "51. 收到朋友的消息，你通常？", options: [{t:"秒回，看到就回，无法忍受红点",p:"Fast"}, {t:"意念回复，经常轮回，或者想好再回",p:"Slow"}, {t:"打字很快，或者直接发语音",p:"Fast"}, {t:"经常隔很久才看到消息",p:"Slow"}] },
+        { text: "52. 你对自己的人生规划倾向于？", options: [{t:"趁年轻多折腾，早早出名，享受成功",p:"Fast"}, {t:"大器晚成，越老越香，积累经验",p:"Slow"}, {t:"只争朝夕，活在当下",p:"Fast"}, {t:"厚积薄发，长远布局",p:"Slow"}] },
+        { text: "53. 吃饭的速度？", options: [{t:"狼吞虎咽，几分钟解决战斗",p:"Fast"}, {t:"细嚼慢咽，享受美食，吃得很慢",p:"Slow"}, {t:"为了填饱肚子，赶时间",p:"Fast"}, {t:"为了品味生活，要有仪式感",p:"Slow"}] },
+        { text: "54. 开车或坐车遇到红灯时？", options: [{t:"焦躁不安，恨不得飞过去，一直看灯",p:"Fast"}, {t:"正好休息一下，听听歌，发发呆",p:"Slow"}, {t:"心里默默倒计时，准备起步",p:"Fast"}, {t:"完全不着急，甚至没注意绿灯亮了",p:"Slow"}] },
+        { text: "55. 学习一项新技能时？", options: [{t:"报个速成班，希望三天就能学会",p:"Fast"}, {t:"十年磨一剑，愿意花时间打磨基本功",p:"Slow"}, {t:"追求快速上手，能用就行",p:"Fast"}, {t:"追求深度掌握，研究原理",p:"Slow"}] },
+        { text: "56. 你的爆发力和耐力？", options: [{t:"爆发力很强，但这股劲过得也快",p:"Fast"}, {t:"爆发力一般，但我耐力好，能坚持",p:"Slow"}, {t:"我是短跑型选手，冲刺厉害",p:"Fast"}, {t:"我是马拉松选手，笑到最后",p:"Slow"}] },
+        { text: "57. 面对环境的突然变化？", options: [{t:"迅速适应，甚至有点兴奋，喜欢新鲜",p:"Fast"}, {t:"需要很长的适应期，感到不适和焦虑",p:"Slow"}, {t:"拥抱变化，快速调整策略",p:"Fast"}, {t:"抗拒改变，喜欢熟悉的环境",p:"Slow"}] },
+        { text: "58. 你的情绪来去速度？", options: [{t:"来得快去得也快，不记仇",p:"Fast"}, {t:"很难生气，一旦生气很久哄不好",p:"Slow"}, {t:"直肠子，有情绪当场发作",p:"Fast"}, {t:"心里藏事，慢慢消化负面情绪",p:"Slow"}] },
+        { text: "59. 如果种花，你会选择？", options: [{t:"那种几天就发芽开花的，要有反馈",p:"Fast"}, {t:"那种要养几年才开花的珍稀品种",p:"Slow"}, {t:"立竿见影的效果",p:"Fast"}, {t:"静待花开的过程",p:"Slow"}] },
+        { text: "60. 最后一个问题，你现在想？", options: [{t:"快点告诉我结果！我等不及了！",p:"Fast"}, {t:"希望能给我一个深刻、详细的分析",p:"Slow"}, {t:"迫不及待想截图发朋友圈",p:"Fast"}, {t:"慢慢品味这个测试的过程",p:"Slow"}] }
+    ];
+
+    // ==========================================
+    // 🚀 逻辑控制引擎
+    // ==========================================
+    let currentQuestion = 0;
+    let scores = { E:0, I:0, T:0, F:0, Royal:0, Wild:0, Zen:0, Romantic:0, Unique:0, Fast:0, Slow:0 };
+
+    // 初始化背景网格
+    function initGrid() {
+        const grid = document.getElementById('bg-grid');
+        // 生成花朵Emoji并填充
+        flowerEmojis.forEach(emoji => {
+            const div = document.createElement('div');
+            div.className = 'bg-flower';
+            div.innerText = emoji;
+            grid.appendChild(div);
+        });
+    }
+
+    function startTest() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = questions[currentQuestion];
+        document.getElementById('progress-text').innerText = `QUESTION ${currentQuestion + 1} / 60`;
+        document.getElementById('question-text').innerText = q.text;
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        
+        // 渲染选项，带淡入动画
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.t;
+            btn.style.animation = `fadeIn 0.4s ease forwards ${idx * 0.1}s`;
+            btn.style.opacity = '0'; 
+            btn.onclick = () => selectOption(opt.p);
+            container.appendChild(btn);
+        });
+    }
+    
+    // 动态添加简单的淡入动画
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    function selectOption(point) {
+        // 计分
+        if (scores[point] !== undefined) scores[point]++;
+        
+        // 下一题
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        // 计算维度逻辑
+        const ei = scores.E >= scores.I ? 'E' : 'I';
+        const tf = scores.T >= scores.F ? 'T' : 'F';
+        const speed = scores.Fast >= scores.Slow ? 'Fast' : 'Slow';
+        
+        // 风格取最高分，若同分随机
+        const styles = ['Royal', 'Wild', 'Zen', 'Romantic', 'Unique'];
+        // 简单的随机洗牌防止固定顺序偏好
+        styles.sort(() => Math.random() - 0.5);
+        const style = styles.reduce((a, b) => scores[a] > scores[b] ? a : b);
+
+        // 生成Key
+        const key = `${ei}_${tf}_${style}_${speed}`;
+        
+        // 兜底逻辑：如果组合意外不存在（极少情况），默认取一个相近的
+        const result = flowerData[key] || flowerData['E_F_Romantic_Fast'];
+
+        // 渲染结果
+        document.getElementById('result-name').innerText = result.name;
+        document.getElementById('result-emoji').innerText = result.emoji;
+        document.getElementById('result-keywords').innerText = result.keywords;
+        document.getElementById('result-desc').innerText = result.desc;
+        document.getElementById('result-analysis').innerText = result.analysis;
+        document.getElementById('result-advice').innerText = result.advice;
+        
+        // 滚动到顶部
+        window.scrollTo(0,0);
+    }
+
+    // 页面加载启动
+    initGrid();
+
+</script>
+</body>
+</html>
